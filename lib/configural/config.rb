@@ -41,14 +41,7 @@ module Configural
     end
 
     def path
-      case Configural.os
-      when 'linux'
-        File.join( ENV['HOME'], '.config', @app.name )
-      when 'mac'
-        File.join( ENV['HOME'], 'Library', 'Preferences', @app.name )
-      when 'windows'
-        File.join( ENV['APPDATA'], @app.name )
-      end
+      @app.platform.config_path
     end
 
     def [](name)

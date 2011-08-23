@@ -32,9 +32,11 @@ module Configural
 
   class App
     attr_accessor :name
+    attr_accessor :platform
 
     def initialize( name )
       @name = name
+      @platform = Configural::Platform.get_platform(self).new(self)
     end
 
     def config

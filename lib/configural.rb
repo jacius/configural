@@ -30,22 +30,11 @@
 
 module Configural
 
-  def self.os
-    require 'rbconfig'
-    case (os = RbConfig::CONFIG['host_os'])
-    when /linux/;        'linux'
-    when /darwin/;       'mac'
-    when /mswin|mingw/;  'windows'
-    else
-      warn "WARNING: Unknown OS: #{os.inspect}"
-      os
-    end
-  end
-
   autoload :App,      'configural/app'
   autoload :AppMixin, 'configural/app'
   autoload :Config,   'configural/config'
   autoload :Data,     'configural/data'
   autoload :Cache,    'configural/data'
+  autoload :Platform, 'configural/platform'
 
 end

@@ -39,15 +39,7 @@ module Configural
     end
 
     def path
-      case Configural.os
-      when 'linux'
-        File.join( ENV['HOME'], '.local', 'share', @app.name )
-      when 'mac'
-        File.join( ENV['HOME'], 'Library', 'Application Support',
-                   @app.name )
-      when 'windows'
-        File.join( ENV['APPDATA'], @app.name )
-      end
+      @app.platform.data_path
     end
 
     def [](name)
@@ -81,14 +73,7 @@ module Configural
 
   class Cache < Data
     def path
-      case Configural.os
-      when 'linux'
-        File.join( ENV['HOME'], '.cache', @app.name )
-      when 'mac'
-        File.join( ENV['HOME'], 'Library', 'Caches', @app.name )
-      when 'windows'
-        File.join( ENV['APPDATA'], @app.name, "Cache" )
-      end
+      @app.platform.cache_path
     end
   end
 
