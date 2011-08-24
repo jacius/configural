@@ -96,7 +96,14 @@ module Configural
     end
 
     def path
-      File.join( @config.path, @name ) + self.class.extnames.first
+      pps = possible_paths
+      pps.find{ |p| File.exists?(p) } || pps.first
+    end
+
+    def possible_paths
+      self.class.extnames.collect{ |extname|
+        File.join( @config.path, @name ) + extname
+      }
     end
 
     def clear
