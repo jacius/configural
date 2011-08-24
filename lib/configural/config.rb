@@ -64,7 +64,8 @@ module Configural
 
 
   # Base class for abstracting configuration file access. You
-  # shouldn't use this class directly. Use YAMLFile instead.
+  # shouldn't use this class directly. Use one of the subclasses (e.g.
+  # YAMLFile) instead.
   # 
   class Config::FileBase
 
@@ -193,6 +194,44 @@ module Configural
       File.open(path, 'w') { |f|
         YAML.dump(@data, f)
       }
+      self
+    end
+  end
+
+
+  # Implementation of FileBase using XML PList (Property List) for
+  # serialization. This format is most commonly used on Mac OS.
+  # 
+  # You must have the 'plist' library installed to use this format.
+  # See: <http://plist.rubyforge.org/>
+  # 
+  class Config::PlistFile < Config::FileBase
+    def self.format
+      'plist'
+    end
+
+    def self.extnames
+      ['.plist']
+    end
+
+
+    def initialize(*args)
+      require 'plist'
+      super
+    end
+
+    def load
+      @data = Plist.parse_xml(path) || {}
+      self
+    rescue Errno::ENOENT
+      @data = {}
+      self
+    end
+
+    def save
+      require 'fileutils'
+      FileUtils.mkdir_p( File.dirname(path) )
+      File.open(path, 'w') { |f| f.write( @data.to_plist ) }
       self
     end
   end
