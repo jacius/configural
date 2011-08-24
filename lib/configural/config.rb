@@ -157,7 +157,7 @@ module Configural
     end
 
     def load_if_uninitialized
-      load unless @data
+      load if @data.nil? or @data.empty?
     end
 
   end
