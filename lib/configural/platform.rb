@@ -119,11 +119,11 @@ module Configural
     end
 
     def config_path
-      File.join( ENV['APPDATA'], @app.name )
+      File.join( ENV['APPDATA'], @app.name, 'Config' )
     end
 
     def data_path
-      File.join( ENV['APPDATA'], @app.name )
+      File.join( ENV['APPDATA'], @app.name, 'Data' )
     end
   end
 
