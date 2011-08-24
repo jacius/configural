@@ -12,9 +12,170 @@ Copyright::  2011  John Croisant
 == Description
 
 Configural is a Ruby library for managing per-user configuration files
-and data storage. It aims to provide an easy to user API to allow
-applications to store and retrieve configuration settings and
-persistant data without any hassle.
+and data storage. It aims to provide an easy to use API to allow
+applications to store and retrieve user configuration, cache, and
+persistant data files without any hassle.
+
+== Features
+
+- Stores config, cache, and data files in the conventional location
+  for each operating system. Comes with support for Linux, Mac, and
+  Windows out of the box.
+- Comes with support for YAML, JSON, and Plist config files out of the
+  box (assuming you have the proper libraries; see the "Dependencies"
+  section, below.)
+- Really easy to add support for more operating systems and more file
+  formats.
+- Really, really easy to use!
+
+== Dependencies
+
+Configural's only dependencies are for the config file formats you
+want to use:
+
+- YAML: Requires 'yaml' (standard on most versions of Ruby).
+- JSON: Requires 'json' (standard on some versions of Ruby, otherwise
+  install the gem or download from <http://json.rubyforge.org/>).
+- Plist: Requires 'plist' (install the gem or download from
+  <http://plist.rubyforge.org>).
+
+== Usage
+
+Here is some basic usage information. For more details, see the
+documentation for Configural::App, Configural::Config,
+Configural::Data, and Configural::Cache.
+
+If you want to add support for another operating system, see
+Configural::Platform. If you want to add support for another file
+format, see Configural::Config::FileBase.
+
+=== Getting started
+
+ require 'configural'
+ app = Configural::App.new("My App")
+
+=== Choosing a config file format
+
+ app.config.format = "json"        # or...
+ app.config.format = "plist"       # or...
+ app.config.format = "yaml"        # the default
+
+=== Configs
+
+First, grab a reference to a particular config, which corresponds to a
+specific config file. No file extension is used here; Configural
+handles that automatically based on what config file format you have
+selected (YAML by default).
+
+ myconfig = app.config["myconfig"]
+
+Then, you can set config keys and save to file. Config values can be
+strings, numbers, even Arrays or Hashes nested however you like. But,
+Hash keys should only be strings, otherwise some file formats won't
+save them correctly. Other types of objects (besides strings, numbers,
+Arrays, and Hashes) are not supported by all formats, so you should
+usually avoid storing them in a config.
+
+ myconfig["some property"] = "some value"
+ myconfig["pi"] = Math::PI
+ myconfig["animals"] = ["cat", "dog", "platypus"]
+ myconfig["nested structure"] = {"array" => [1, 2, {"a" => 3}]}
+ myconfig.save
+
+In this case, the config is saved to 'myconfig.yml' in the conventional
+directory for the user's operating system. You don't need to worry
+about where the file is saved; Configural handles that stuff
+automatically in the background. (But if you're curious, see the
+"Where files are stored" section, below.)
+
+Loading of configs happens automatically when the config's data is
+first accessed. Here's an example loading the config in a new
+ruby session...
+
+ require 'configural'
+ app = Configural::App.new("My App")
+ myconfig = app.config["myconfig"]
+ 
+ myconfig["some_property"]         # => "some value"
+ myconfig["pi"]                    # => 3.141592653589793
+ myconfig["animals"]               # => ["cat", "dog", "platypus"]
+ myconfig["nested structure"]      # => {"array"=>[1, 2, {"a"=>3}]}
+ 
+ myconfig.to_hash
+ # => {"some property"=>"some value",
+ #     "pi"=>3.141592653589793,
+ #     "animals"=>["cat", "dog", "platypus"],
+ #     "nested structure"=>{"array"=>[1, 2, {"a"=>3}]}}
+
+You can also force the config to be (re)loaded from file at any time:
+
+ myconfig.load
+
+=== Data and cache files
+
+Data and cache files are just files where you can read and write
+anything you want. They have no special magic, except Configural helps
+you store them in the conventional location for each OS.
+
+You can use the +read+ and +write+ methods for convenience, or use the
++open+ method to get a File instance. +open+ accepts an optional mode
+and an optional block, just like File.open.
+
+ app.data['mydata.txt'].write("My data.")
+ app.data['mydata.txt'].read         # => "My data."
+ app.data['mydata.txt'].open{ |file|
+   # Do whatever you want with the File instance.
+ }
+
+In this case, 'mydata.txt' refers to a file inside the data storage
+directory, which is different for each operating system. Unlike
+configs, you _should_ use a file extension when referring to a data or
+cache file. (Configural can't automatically guess a file extension,
+because data and cache files can be any file format you want.)
+
+Caches work the same as data, except you use +app.cache+ instead of
++app.data+, and cache files are stored in a different directory.
+
+== Where files are stored
+
+Configural supports three kinds of files:
+
+- Config: User preferences and other configuration settings.
+- Data: Persistant data files. This could be used for things like
+  saved playlists, installed add-ons, downloaded music files, or any
+  other user data that should be preserved indefinitely.
+- Cache: Temporary files created (for example) to save bandwidth or
+  time. These are files that can safely be deleted by the user;
+  deleting them won't break the application or cause data loss.
+
+Each kind of file is stored in a different directory, as appropriate
+to the conventions of the user's operating system.
+
+(The following examples assume your app is named "My App".)
+
+=== Linux
+
+ Config: ~/.config/My App/
+ Data: ~/.local/share/My App/
+ Cache: ~/.cache/My App/
+
+=== Mac
+
+ Config: ~/Library/Preferences/My App/
+ Data: ~/Library/Application Support/My App/
+ Cache: ~/Library/Caches/My App/
+
+=== Windows
+
+ Config: %APPDATA%\My App\Config\
+ Data: %APPDATA%\My App\Data\
+ Cache: %APPDATA%\My App\Cache\
+
+%APPDATA% is an environment variable with different values depending
+on your version of Windows. The usual values are:
+
+ XP: C:\Documents and Settings\%USERNAME%\Application Data
+ Vista and later: C:\Users\%USERNAME%\AppData\Roaming
 
 == License
 
