@@ -142,6 +142,11 @@ module Configural
       @data[key.to_s] = value
     end
 
+    def to_hash
+      load_if_uninitialized
+      @data.dup
+    end
+
     def load
       raise 'Method not implemented for base class.'
     end
