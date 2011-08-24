@@ -32,12 +32,19 @@ module Configural
 
   class Config
     attr_accessor :app
-    attr_accessor :fileclass
 
     def initialize( app )
       @app = app
       @files = {}
-      @fileclass = Config::YAMLFile
+      self.format = 'yaml'
+    end
+
+    def format
+      @format.format
+    end
+
+    def format=( fmt )
+      @format = FileBase.get_format(fmt)
     end
 
     def path
@@ -45,7 +52,7 @@ module Configural
     end
 
     def [](name)
-      @files[name.to_s] ||= @fileclass.new(self, name.to_s)
+      @files[name.to_s] ||= @format.new(self, name.to_s)
     end
 
     def save_all
@@ -60,6 +67,23 @@ module Configural
   # shouldn't use this class directly. Use YAMLFile instead.
   # 
   class Config::FileBase
+
+    def self.inherited(subclass)
+      @subclasses ||= []
+      @subclasses << subclass
+    end
+
+    def self.get_format( fmt )
+      format = @subclasses.reverse.find { |subclass|
+        (subclass.format == fmt.to_s or
+         subclass == fmt)
+      }
+      unless format
+        raise "No class available for format: #{fmt.to_s}"
+      end
+      format
+    end
+
     require 'enumerator'
     include Enumerable
 
@@ -72,7 +96,7 @@ module Configural
     end
 
     def path
-      File.join( @config.path, @name ) + extname
+      File.join( @config.path, @name ) + self.class.extnames.first
     end
 
     def clear
@@ -88,7 +112,7 @@ module Configural
     def exists?
       File.exists?(path)
     end
-    alias :exist?, :exists?
+    alias :exist? :exists?
 
     def each(&block)
       load_if_uninitialized
@@ -120,8 +144,8 @@ module Configural
 
     private
 
-    def extname
-      ''
+    def extnames
+      ['']
     end
 
     def load_if_uninitialized
@@ -134,13 +158,18 @@ module Configural
   # Implementation of FileBase using YAML for serialization.
   # 
   class Config::YAMLFile < Config::FileBase
+    def self.format
+      'yaml'
+    end
+
+    def self.extnames
+      ['.yml', '.yaml']
+    end
+
+
     def initialize(*args)
       require 'yaml'
       super
-    end
-
-    def extname
-      '.yml'
     end
 
     def load
