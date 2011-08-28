@@ -31,12 +31,13 @@
 module Configural
 
   class Config
-    attr_accessor :app
+    attr_accessor :app, :options
 
     def initialize( app )
       @app = app
       @files = {}
       self.format = 'yaml'
+      @options = {}
     end
 
     def format
