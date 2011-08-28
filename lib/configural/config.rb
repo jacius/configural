@@ -37,16 +37,10 @@ module Configural
     def initialize( app )
       @app = app
       @files = {}
-      self.format = 'yaml'
-      @options = {:lazy_loading => false}
-    end
-
-    def format
-      @format.format
-    end
-
-    def format=( fmt )
-      @format = FileBase.get_format(fmt)
+      @options = {
+        :default_format => 'yaml',
+        :lazy_loading => false,
+      }
     end
 
     def path
@@ -54,12 +48,19 @@ module Configural
     end
 
     def [](name)
-      @files[name.to_s] ||= @format.new(self, name.to_s)
+      @files[name.to_s] ||= make_file(name.to_s)
     end
 
     def save_all
       @files.each_value{ |file| file.save }
       self
+    end
+
+    private
+
+    def make_file(name)
+      format = FileBase.get_format(@options[:default_format])
+      format.new(self, name)
     end
 
   end
