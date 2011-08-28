@@ -37,7 +37,7 @@ module Configural
       @app = app
       @files = {}
       self.format = 'yaml'
-      @options = {}
+      @options = {:lazy_loading => false}
     end
 
     def format
@@ -95,6 +95,7 @@ module Configural
       @config = config
       @name = name
       @data = {}
+      load unless @config.options[:lazy_loading]
     end
 
     def path
