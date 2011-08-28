@@ -1,0 +1,112 @@
+= Extending Configural
+
+This guide explains how to extend Configural to add support for more
+operating systems and config file formats.
+
+== Adding an operating system
+
+You can add support for a new operating system simply by creating a
+subclass of the Configural::Platform class. The Platform subclass is
+automatically registered with Configural when it is created.
+
+The Platform subclasses are each tested to see if they match the
+current operating system. They are tested in reverse order (i.e. the
+last defined subclass is checked first), so that new subclasses take
+precedence over old ones. Once the first matching Platform subclass
+has been found, no more are tested.
+
+Every Platform subclass must define these four methods:
+
+* <code>self.match?</code>
+* <code>cache_path</code>
+* <code>config_path</code>
+* <code>data_path</code>
+
+Additionally, a Platform subclass may define an +initialize+ method to
+perform platform-specific initialization.
+
+=== def self.match?( app )
+
+This is a class method that returns true if the subclass matches the
+current operating system. Otherwise, it returns false or nil.
+
+This method accepts exactly one argument, which is an instance of
+Configural::App. That's not very useful yet, but in the future a
+Platform subclass might want to inspect the App instance before
+deciding whether this method should return true or false.
+
+NOTE: When determining the user's operating system, it is *not* good
+practice to check the +PLATFORM+ or +RUBY_PLATFORM+ constants.
+Instead, check <code>RbConfig::CONFIG['host_os']</code>.
+
+Example:
+
+ def self.match?( app )
+   true if /linux/ =~ RbConfig::CONFIG['host_os']
+ end
+
+=== def cache_path
+
+This is an instance method that returns a String containing the
+absolute path to the directory where cache files for the current App
+should be stored.
+
+This method can use the @app instance variable to access the current
+App instance. In particular, @app.name is useful for getting the name
+of the App.
+
+Example:
+
+ def cache_path
+   File.join( ENV['HOME'], '.cache', @app.name )
+ end
+
+=== def config_path
+
+This is an instance method that returns a String containing the
+absolute path to the directory where config files for the current App
+should be stored.
+
+This method can use the @app instance variable to access the current
+App instance. In particular, @app.name is useful for getting the name
+of the App.
+
+Example:
+
+ def config_path
+   File.join( ENV['HOME'], '.config', @app.name )
+ end
+
+=== def data_path
+
+This is an instance method that returns a String containing the
+absolute path to the directory where data files for the current App
+should be stored.
+
+This method can use the @app instance variable to access the current
+App instance. In particular, @app.name is useful for getting the name
+of the App.
+
+Example:
+
+ def data_path
+   File.join( ENV['HOME'], '.local', 'share', @app.name )
+ end
+
+=== Optional: def initialize( app )
+
+A Platform subclass may define an initialize method, to perform some
+platform-specific initialization. The initialize method must accept
+exactly one argument, the current App instance, and must call +super+.
+
+Example:
+
+ def initialize( app )
+   super
+   # Platform-specific initialization code here.
+ end
+
+
+== Adding a config file format
+
+(To be written...)

@@ -45,9 +45,8 @@ Here is some basic usage information. For more details, see the
 documentation for Configural::App, Configural::Config,
 Configural::Data, and Configural::Cache.
 
-If you want to add support for another operating system, see
-Configural::Platform. If you want to add support for another file
-format, see Configural::Config::FileBase.
+To add support for another operating system or file format, see the
+"Extending Configural" guide (docs/extending_configural.rdoc).
 
 === Setting up
 
