@@ -100,6 +100,12 @@ module Configural
       self
     end
 
+    def close
+      @data = {}
+      @loaded = false
+      self
+    end
+
     def delete
       File.rm(path, :force => true)
       self
