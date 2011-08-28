@@ -47,21 +47,18 @@ module Configural
       super
     end
 
-    def load
+    def _load
       @data = YAML.load_file(path) || {}
-      self
     rescue Errno::ENOENT
       @data = {}
-      self
     end
 
-    def save
+    def _save
       require 'fileutils'
       FileUtils.mkdir_p( File.dirname(path) )
       File.open(path, 'w') { |f|
         YAML.dump(@data, f)
       }
-      self
     end
   end
 

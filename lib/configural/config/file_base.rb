@@ -73,6 +73,7 @@ module Configural
       @config = config
       @name = name
       @data = {}
+      @loaded = false
       load unless @config.options[:lazy_loading]
     end
 
@@ -94,7 +95,8 @@ module Configural
     end
 
     def clear
-      @data.clear
+      @data = {}
+      @loaded = true
       self
     end
 
@@ -109,42 +111,59 @@ module Configural
     alias :exist? :exists?
 
     def each(&block)
-      load_if_uninitialized
+      load unless @loaded
       @data.each(&block)
     end
 
     def keys
-      load_if_uninitialized
+      load unless @loaded
       @data.keys
     end
 
     def [](key)
-      load_if_uninitialized
+      load unless @loaded
       @data[key.to_s]
     end
 
     def []=(key, value)
-      load_if_uninitialized
+      load unless @loaded
       @data[key.to_s] = value
     end
 
     def to_hash
-      load_if_uninitialized
+      load unless @loaded
       @data.dup
     end
 
     def load
-      raise 'Method not implemented for base class.'
+      load! unless @loaded
+      self
+    end
+
+    def load!
+      _load
+      @loaded = true
+      self
     end
 
     def save
-      raise 'Method not implemented for base class.'
+      _save unless not @loaded
+      self
+    end
+
+    def save!
+      _save
+      self
     end
 
     private
 
-    def load_if_uninitialized
-      load if @data.nil? or @data.empty?
+    def _load
+      raise 'Method not implemented for base class.'
+    end
+
+    def _save
+      raise 'Method not implemented for base class.'
     end
 
   end

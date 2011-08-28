@@ -51,27 +51,23 @@ module Configural
       super
     end
 
-    def load
+    def _load
       @data = File.open(path, 'r'){|f| JSON.load(f) }
       @data ||= {}
-      self
     rescue Errno::ENOENT
       @data = {}
-      self
     rescue JSON::ParserError => e
       warn( "WARNING: Could not load config file #{path.inspect}:\n" +
             e.inspect + "\nUsing empty dataset instead." )
       @data = {}
-      self
     end
 
-    def save
+    def _save
       require 'fileutils'
       FileUtils.mkdir_p( File.dirname(path) )
       File.open(path,'w'){ |f|
         f.write( JSON.pretty_generate(@data) )
       }
-      self
     end
   end
 
