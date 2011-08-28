@@ -49,67 +49,21 @@ If you want to add support for another operating system, see
 Configural::Platform. If you want to add support for another file
 format, see Configural::Config::FileBase.
 
-=== Getting started
+=== Setting up
+
+Before you can use any part of Configural, you must create an App
+instance, like so:
 
  require 'configural'
  app = Configural::App.new("My App")
 
-=== Choosing a config file format
+Replace "My App" with the name of your application. This string is
+used to name the directories where your config, data, and cache files
+are saved.
 
- app.config.format = "json"        # or...
- app.config.format = "plist"       # or...
- app.config.format = "yaml"        # the default
+=== Config files
 
-=== Configs
-
-First, grab a reference to a particular config, which corresponds to a
-specific config file. No file extension is used here; Configural
-handles that automatically based on what config file format you have
-selected (YAML by default).
-
- myconfig = app.config["myconfig"]
-
-Then, you can set config keys and save to file. Config values can be
-strings, numbers, even Arrays or Hashes nested however you like. But,
-Hash keys should only be strings, otherwise some file formats won't
-save them correctly. Other types of objects (besides strings, numbers,
-Arrays, and Hashes) are not supported by all formats, so you should
-usually avoid storing them in a config.
-
- myconfig["some property"] = "some value"
- myconfig["pi"] = Math::PI
- myconfig["animals"] = ["cat", "dog", "platypus"]
- myconfig["nested structure"] = {"array" => [1, 2, {"a" => 3}]}
- myconfig.save
-
-In this case, the config is saved to 'myconfig.yml' in the conventional
-directory for the user's operating system. You don't need to worry
-about where the file is saved; Configural handles that stuff
-automatically in the background. (But if you're curious, see the
-"Where files are stored" section, below.)
-
-Loading of configs happens automatically when the config's data is
-first accessed. Here's an example loading the config in a new
-ruby session...
-
- require 'configural'
- app = Configural::App.new("My App")
- myconfig = app.config["myconfig"]
- 
- myconfig["some_property"]         # => "some value"
- myconfig["pi"]                    # => 3.141592653589793
- myconfig["animals"]               # => ["cat", "dog", "platypus"]
- myconfig["nested structure"]      # => {"array"=>[1, 2, {"a"=>3}]}
- 
- myconfig.to_hash
- # => {"some property"=>"some value",
- #     "pi"=>3.141592653589793,
- #     "animals"=>["cat", "dog", "platypus"],
- #     "nested structure"=>{"array"=>[1, 2, {"a"=>3}]}}
-
-You can also force the config to be (re)loaded from file at any time:
-
- myconfig.load
+See the "Using Config Files" guide (docs/using_config_files.rdoc).
 
 === Data and cache files
 

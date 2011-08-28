@@ -1,0 +1,146 @@
+= Using Config Files
+
+This guide explains how to use config files in Configural.
+
+== Setting up
+
+Before you can use any part of Configural, you must create an App
+instance, like so:
+
+ require 'configural'
+ app = Configural::App.new("My App")
+
+Replace "My App" with the name of your application. This string is
+used to name the directories where your config, data, and cache files
+are saved.
+
+== Opening a config file
+
+First, open a config file:
+
+ myconfig = app.config["myconfig.yml"]  # or...
+ myconfig = app.config["myconfig"]
+
+If you use a file extension (e.g. ".yml", ".plist", ".json"),
+Configural will try to use the correct format for that extension. If
+you don't use a file extension, Configural will use the default config
+file format (see the subsection below).
+
+If the file already exists, its contents will be loaded automatically.
+See the "Loading" section, below.
+
+=== Choosing the default config file format
+
+The default config file format is used when you open a config file
+without specifying a file extension. You can choose the default config
+file format like so:
+
+ app.config.options[:default_format] = "json"     # or...
+ app.config.options[:default_format] = "plist"    # or...
+ app.config.options[:default_format] = "yaml"     # the default
+
+== Accessing the data
+
+After you have opened the config file, you can read and write to it as
+if it were a Hash:
+
+ myconfig["some property"] = "some value"
+ myconfig["pi"] = Math::PI
+ myconfig["animals"] = ["cat", "dog", "platypus"]
+ myconfig["nested structure"] = {"array" => [1, 2, {"a" => 3}]}
+
+Hash keys in the config file should always be strings. Values can be
+strings, numbers, Arrays, or Hashes (nested Arrays/Hashes are
+allowed). Other types of objects may not be supported by all formats,
+so you should usually avoid storing them in a config file.
+
+There are also several other methods available for accessing and
+manipulating the config file. Here are some important ones:
+
+* +clear+ erases all loaded data in memory (but does not affect the
+  file until you save).
+* +close+ forgets all loaded data and closes the file so it will
+  be loaded from disk again the next time it is accessed. See the
+  "Closing" section, below.
+* +delete+ deletes the config file on disk (but does not affect data
+  that has been loaded to memory).
+* +each+ iterates over all key/value pairs in the config file.
+* +to_hash+ returns a shallow copy of the config file data, as a Hash.
+
+For more details, see the Configural::Config::FileBase class. That is
+the base class for all config file formats in Configural.
+
+== Saving
+
+After you have made changes to the config file data, you will probably
+want to save the file:
+
+ myconfig.save
+
+In this example, the config is saved to the "myconfig.yml" file.
+Configural automatically chooses where to save the config file, based
+on the conventions of the current operating system. For details about
+where Configural saves files, see the "Where files are stored" section
+in README.rdoc.
+
+If you have several files open, you can save them all in one step:
+
+  app.config.save_all
+
+This has no effect on config files that have not been opened or loaded
+yet.
+
+== Loading
+
+By default, config files are loaded automatically when you first open
+them. You can change that behavior by enabling lazy loading (see the
+subsection below).
+
+Here's an example of loading the config in a new session. Notice how
+Configural automatically loads the data saved from before:
+
+ require 'configural'
+ app = Configural::App.new("My App")
+ 
+ myconfig = app.config["myconfig"] # "myconfig.yml" is loaded now
+ 
+ myconfig["some_property"]         # => "some value"
+ myconfig["pi"]                    # => 3.141592653589793
+ myconfig["animals"]               # => ["cat", "dog", "platypus"]
+ myconfig["nested structure"]      # => {"array"=>[1, 2, {"a"=>3}]}
+
+There are two methods for manually loading the file:
+
+* The +load!+ method forces the config file to be (re)loaded. This
+  replaces any unsaved changes you have made.
+* The +load+ method loads the config file only if it has not been
+  loaded yet. If the config file has already been loaded, this method
+  has no effect. This method is only useful when you have enabled lazy
+  loading.
+
+=== Enabling lazy loading
+
+You can enable lazy loading for config files like so:
+
+ app.config.options[:lazy_loading] = true
+
+When lazy loading is enabled, config files will not be automatically
+loaded when they are first opened. Instead, they will be loaded when
+you first access any data in the config file, or (obviously) when you
+use the +load+ method.
+
+== Closing
+
+If you have a config file with a lot of data in it, you can free up
+memory by closing the config file after you are done accessing it:
+
+ myconfig.close
+
+This causes Configural to forget all loaded data (including any
+unsaved changes you have made), and act as if the config file had not
+been loaded yet. The config file data will be loaded again the next
+time you access it, or when you use the +load+ or +load!+ methods.
+
+If you want to save before closing the file, simply do:
+
+ myconfig.save.close
