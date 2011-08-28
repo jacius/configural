@@ -52,6 +52,15 @@ module Configural
       format
     end
 
+    def self.format
+      raise 'Method not implemented for base class.'
+    end
+
+    def self.extnames
+      raise 'Method not implemented for base class.'
+    end
+
+
     require 'enumerator'
     include Enumerable
 
@@ -124,10 +133,6 @@ module Configural
     end
 
     private
-
-    def extnames
-      ['']
-    end
 
     def load_if_uninitialized
       load if @data.nil? or @data.empty?
