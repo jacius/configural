@@ -41,16 +41,19 @@ module Configural
       @subclasses << subclass
     end
 
-    def self.get_format( fmt )
-      format = @subclasses.reverse.find { |subclass|
-        (subclass.format == fmt.to_s or
-         subclass == fmt)
-      }
-      unless format
-        raise "No class available for format: #{fmt.to_s}"
-      end
-      format
+
+    def self.get_format_by_name( format )
+      @subclasses.reverse.find { |subclass|
+        subclass.format == format
+      } or raise "Unrecognized file format: #{format}"
     end
+
+    def self.get_format_by_extname( extname )
+      @subclasses.reverse.find { |subclass|
+        subclass.extnames.include?(extname)
+      } or raise "Unrecognized file extension: #{extname}"
+    end
+
 
     def self.format
       raise 'Method not implemented for base class.'
@@ -79,9 +82,15 @@ module Configural
     end
 
     def possible_paths
-      self.class.extnames.collect{ |extname|
-        File.join( @config.path, @name ) + extname
-      }
+      if File.extname(@name).empty?
+        # Name has no extension, try appending each extension.
+        self.class.extnames.collect{ |extname|
+          File.join( @config.path, @name ) + extname
+        }
+      else
+        # Name has an extension, so don't append anything.
+        [File.join( @config.path, @name )]
+      end
     end
 
     def clear

@@ -59,7 +59,13 @@ module Configural
     private
 
     def make_file(name)
-      format = FileBase.get_format(@options[:default_format])
+      if File.extname(name).empty?
+        # No file extension, so use the default format.
+        format = FileBase.get_format_by_name(@options[:default_format])
+      else
+        # Has a file extension, so try to find a matching format.
+        format = FileBase.get_format_by_extname(File.extname(name))
+      end
       format.new(self, name)
     end
 
