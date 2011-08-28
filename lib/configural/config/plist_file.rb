@@ -30,44 +30,41 @@
 
 module Configural
 
-  class Config
-
-    attr_accessor :app, :options
-
-    def initialize( app )
-      @app = app
-      @files = {}
-      self.format = 'yaml'
-      @options = {:lazy_loading => false}
+  # Implementation of FileBase using XML PList (Property List) for
+  # serialization. This format is most commonly used on Mac OS.
+  # 
+  # You must have the 'plist' library installed to use this format.
+  # See: <http://plist.rubyforge.org/>
+  # 
+  class Config::PlistFile < Config::FileBase
+    def self.format
+      'plist'
     end
 
-    def format
-      @format.format
+    def self.extnames
+      ['.plist']
     end
 
-    def format=( fmt )
-      @format = FileBase.get_format(fmt)
+
+    def initialize(*args)
+      require 'plist'
+      super
     end
 
-    def path
-      @app.platform.config_path
-    end
-
-    def [](name)
-      @files[name.to_s] ||= @format.new(self, name.to_s)
-    end
-
-    def save_all
-      @files.each_value{ |file| file.save }
+    def load
+      @data = Plist.parse_xml(path) || {}
+      self
+    rescue Errno::ENOENT
+      @data = {}
       self
     end
 
+    def save
+      require 'fileutils'
+      FileUtils.mkdir_p( File.dirname(path) )
+      File.open(path, 'w') { |f| f.write( @data.to_plist ) }
+      self
+    end
   end
 
 end
-
-
-require 'configural/config/file_base'
-require 'configural/config/json_file'
-require 'configural/config/plist_file'
-require 'configural/config/yaml_file'

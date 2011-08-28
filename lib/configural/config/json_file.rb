@@ -30,44 +30,49 @@
 
 module Configural
 
-  class Config
-
-    attr_accessor :app, :options
-
-    def initialize( app )
-      @app = app
-      @files = {}
-      self.format = 'yaml'
-      @options = {:lazy_loading => false}
+  # Implementation of FileBase using JSON for serialization.
+  # 
+  # You must have the 'json' library installed to use this format.
+  # This library comes standard with some versions of Ruby.
+  # Otherwise, install the 'json' gem.
+  # 
+  class Config::JSONFile < Config::FileBase
+    def self.format
+      'json'
     end
 
-    def format
-      @format.format
+    def self.extnames
+      ['.json']
     end
 
-    def format=( fmt )
-      @format = FileBase.get_format(fmt)
+
+    def initialize(*args)
+      require 'json'
+      super
     end
 
-    def path
-      @app.platform.config_path
-    end
-
-    def [](name)
-      @files[name.to_s] ||= @format.new(self, name.to_s)
-    end
-
-    def save_all
-      @files.each_value{ |file| file.save }
+    def load
+      @data = File.open(path, 'r'){|f| JSON.load(f) }
+      @data ||= {}
+      self
+    rescue Errno::ENOENT
+      @data = {}
+      self
+    rescue JSON::ParserError => e
+      warn( "WARNING: Could not load config file #{path.inspect}:\n" +
+            e.inspect + "\nUsing empty dataset instead." )
+      @data = {}
       self
     end
 
+    def save
+      require 'fileutils'
+      FileUtils.mkdir_p( File.dirname(path) )
+      File.open(path,'w'){ |f|
+        f.write( JSON.pretty_generate(@data) )
+      }
+      self
+    end
   end
 
 end
-
-
-require 'configural/config/file_base'
-require 'configural/config/json_file'
-require 'configural/config/plist_file'
-require 'configural/config/yaml_file'
