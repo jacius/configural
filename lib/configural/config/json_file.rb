@@ -56,7 +56,7 @@ module Configural
       @data ||= {}
     rescue Errno::ENOENT
       @data = {}
-    rescue JSON::ParserError => e
+    rescue JSON::ParserError, Errno::EACCESS => e
       warn( "WARNING: Could not load config file #{path.inspect}:\n" +
             e.inspect + "\nUsing empty dataset instead." )
       @data = {}
@@ -68,6 +68,9 @@ module Configural
       File.open(path,'w'){ |f|
         f.write( JSON.pretty_generate(@data) )
       }
+    rescue JSON::GeneratorError, Errno::EACCESS => e
+      warn( "WARNING: Could not save config file #{path.inspect}:\n" +
+            e.inspect )
     end
   end
 

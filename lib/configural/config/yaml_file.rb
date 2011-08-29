@@ -51,6 +51,10 @@ module Configural
       @data = YAML.load_file(path) || {}
     rescue Errno::ENOENT
       @data = {}
+    rescue ArgumentError, Errno::EACCESS => e
+      warn( "WARNING: Could not load config file #{path.inspect}:\n" +
+            e.inspect + "\nUsing empty dataset instead." )
+      @data = {}
     end
 
     def _save
@@ -59,6 +63,9 @@ module Configural
       File.open(path, 'w') { |f|
         YAML.dump(@data, f)
       }
+    rescue Errno::EACCES
+      warn( "WARNING: Could not save config file #{path.inspect}:\n" +
+            e.inspect )
     end
   end
 

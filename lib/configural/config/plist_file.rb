@@ -55,12 +55,20 @@ module Configural
       @data = Plist.parse_xml(path) || {}
     rescue Errno::ENOENT
       @data = {}
+    rescue Errno::EACCESS => e
+      warn( "WARNING: Could not load config file #{path.inspect}:\n" +
+            e.inspect + "\nUsing empty dataset instead." )
+      @data = {}
     end
 
     def _save
       require 'fileutils'
       FileUtils.mkdir_p( File.dirname(path) )
-      File.open(path, 'w') { |f| f.write( @data.to_plist ) }
+      File.open(path, 'w'){ |f| f.write( Plist::Emit.dump(@data) ) }
+    rescue Errno::EACCESS => e
+      warn( "WARNING: Could not save config file #{path.inspect}:\n" +
+            e.inspect )
+    end
     end
   end
 
