@@ -21,9 +21,9 @@ persistant data files without any hassle.
 - Stores config, cache, and data files in the conventional location
   for each operating system. Comes with support for Linux, Mac, and
   Windows out of the box.
-- Comes with support for YAML, JSON, and Plist config files out of the
-  box (assuming you have the proper libraries; see the "Dependencies"
-  section, below.)
+- Comes with support for YAML, JSON, Plist, and SDL config files out
+  of the box (assuming you have the proper libraries; see the
+  "Dependencies" section, below.)
 - Really easy to add support for more operating systems and more file
   formats.
 - Really, really easy to use!
@@ -35,9 +35,11 @@ want to use:
 
 - YAML: Requires 'yaml' (standard on most versions of Ruby).
 - JSON: Requires 'json' (standard on some versions of Ruby, otherwise
-  install the gem or download from <http://json.rubyforge.org/>).
+  install the gem or download from <http://json.rubyforge.org>).
 - Plist: Requires 'plist' (install the gem or download from
   <http://plist.rubyforge.org>).
+- SDL: Requires 'sdl4r' (install the gem or download from
+  <http://sdl4r.rubyforge.org>).
 
 == Usage
 
