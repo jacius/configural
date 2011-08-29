@@ -63,7 +63,7 @@ module Configural
       File.open(path, 'w') { |f|
         YAML.dump(@data, f)
       }
-    rescue Errno::EACCES
+    rescue Errno::EACCES => e
       warn( "WARNING: Could not save config file #{path.inspect}:\n" +
             e.inspect )
     end

@@ -69,7 +69,6 @@ module Configural
       warn( "WARNING: Could not save config file #{path.inspect}:\n" +
             e.inspect )
     end
-    end
   end
 
 end
