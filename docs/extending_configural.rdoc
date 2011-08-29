@@ -109,4 +109,135 @@ Example:
 
 == Adding a config file format
 
-(To be written...)
+You can add support for a new operating system simply by creating a
+subclass of the Configural::Config::FileBase class. The subclass is
+automatically registered with Configural when it is created.
+
+When each config file is first opened (e.g. with
+<code>app.config["myconfig"]</code>, the FileBase subclasses are each
+tested to see if they match the desired format for the config file:
+
+* If the config file name has a file extension, each subclass is
+  tested to see if it provides a matching extension.
+* Otherwise, each subclass is tested to see if it match the default
+  config file format.
+
+The subclasses are tested in reverse order (i.e. the last defined
+subclass is checked first), so that new subclasses take precedence
+over old ones. Once the first matching subclass has been found, no
+more are tested.
+
+Every FileBase subclass must define these methods:
+
+* <code>self.extnames</code>
+* <code>self.format</code>
+* <code>_load</code>
+* <code>_save</code>
+
+Additionally, a FileBase subclass may define an +initialize+ method to
+perform platform-specific initialization.
+
+=== def self.extnames
+
+This is a class method that returns an Array of Strings, one string
+for each file extension that matches this format. This allows for
+situations where there might be multiple common file extensions for a
+format (such as YAML, which uses either ".yml" or ".yaml").
+
+This array of file extensions is used when a config file is opened. It
+is used in one of two ways, depending on whether the config file name
+has a file extension.
+
+* When it has a file extension, that extension is compared to each
+  extension in this array (and the arrays for other config file
+  formats). If there is a match, this config file format is used.
+
+* When it has no file extension, and this config file format is the
+  default, Configural checks for an existing config file with each of
+  the extensions in this list. The first matching existing file is
+  used. If there are no existing files, the config file will be saved
+  using the *first* file extension in this array.
+
+Example:
+
+ def self.extnames
+   ['.yml', '.yaml']
+ end
+
+=== def self.format
+
+This is a class method that returns a short string identifying the
+format used by this subclass. If this string matches the value of the
+<code>:default_format</code> option, this config file format is used
+when a config file is opened with no file extension.
+
+For more information about choosing the default config file format,
+see the "Using Config Files" guide (docs/using_config_files.rdoc).
+
+Example:
+
+ def self.format
+   'yaml'
+ end
+
+=== def _load
+
+This is a private instance method responsible for loading the config
+file from disk and storing it as a Hash file in the @data instance
+variable. The path to the file that should be loaded is available with
+the +path+ method.
+
+This method should be prepared to handle situations like the file not
+existing, being unreadable, being empty, or having invalid contents.
+In general, the recommended behavior for recovering from load errors
+is to use an empty hash, and possibly print a warning.
+
+Example:
+
+ def _load
+   @data = YAML.load_file(path) || {}
+ rescue Errno::ENOENT
+   @data = {}
+ rescue ArgumentError, Errno::EACCESS => e
+   warn( "WARNING: Could not load config file #{path.inspect}:\n" +
+         e.inspect + "\nUsing empty dataset instead." )
+   @data = {}
+ end
+
+=== def _save
+
+This is a private instance method responsible for converting the @data
+Hash to the proper format and saving it to the file on disk. The path
+to where the file should be saved is available with the +path+ method.
+
+This method should be prepared to handle situations like the file
+being unwritable. In general, the recommended behavior for recovering
+from save errors is simply to print a warning.
+
+Example:
+
+ def _save
+   require 'fileutils'
+   FileUtils.mkdir_p( File.dirname(path) )
+   File.open(path, 'w') { |f|
+     YAML.dump(@data, f)
+   }
+ rescue Errno::EACCES
+   warn( "WARNING: Could not save config file #{path.inspect}:\n" +
+         e.inspect )
+ end
+
+=== Optional: def initialize( config, name )
+
+A FileBase subclass may define an initialize method, to perform some
+format-specific initialization, such as requiring a library. The
+initialize method must accept exactly two arguments, the current
+Configural::Config instance and the config file's name. The method
+must call +super+.
+
+Example:
+
+ def initialize( config, name )
+   require 'yaml'
+   super
+ end
