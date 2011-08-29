@@ -77,4 +77,5 @@ end
 require 'configural/config/file_base'
 require 'configural/config/json_file'
 require 'configural/config/plist_file'
+require 'configural/config/sdl_file'
 require 'configural/config/yaml_file'
