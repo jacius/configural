@@ -43,12 +43,24 @@ module Configural
       @config ||= Configural::Config.new(self)
     end
 
+    def config_path
+      @platform.config_path
+    end
+
     def cache
       @cache ||= Configural::Cache.new(self)
     end
 
+    def cache_path
+      @platform.cache_path
+    end
+
     def data
       @data ||= Configural::Data.new(self)
+    end
+
+    def data_path
+      @platform.data_path
     end
 
     def save_all

@@ -44,7 +44,7 @@ module Configural
     end
 
     def path
-      @app.platform.config_path
+      @app.config_path
     end
 
     def [](name)

@@ -39,7 +39,7 @@ module Configural
     end
 
     def path
-      @app.platform.data_path
+      @app.data_path
     end
 
     def [](name)
@@ -73,7 +73,7 @@ module Configural
 
   class Cache < Data
     def path
-      @app.platform.cache_path
+      @app.cache_path
     end
   end
 
