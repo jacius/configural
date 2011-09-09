@@ -30,50 +30,41 @@
 
 module Configural
 
-  class Data
-    attr_accessor :owner
+  class User
+    attr_accessor :platform
 
-    def initialize( owner )
-      @owner = owner
-      @files = {}
+    def initialize( app )
+      @app = app
+      @platform = Configural::Platform.get_platform(app).new(app)
     end
 
-    def path
-      @owner.data_path
+    def config
+      @config ||= Configural::Config.new(self)
     end
 
-    def [](name)
-      @files[name.to_s] ||= Data::DataFile.new(self, name.to_s)
-    end
-  end
-
-
-  class Data::DataFile
-    def initialize( data, name )
-      @data = data
-      @name = name
+    def config_path
+      @platform.config_path
     end
 
-    def open( mode="w+", &block )
-      require 'fileutils'
-      path = File.join( @data.path, @name )
-      FileUtils.mkdir_p( File.dirname(path) )
-      File.open(path, mode, &block)
+    def cache
+      @cache ||= Configural::Cache.new(self)
     end
 
-    def read
-      open('r'){ |f| f.read }
+    def cache_path
+      @platform.cache_path
     end
 
-    def write( contents )
-      open('w'){ |f| f.write(contents) }
+    def data
+      @data ||= Configural::Data.new(self)
     end
-  end
 
+    def data_path
+      @platform.data_path
+    end
 
-  class Cache < Data
-    def path
-      @owner.cache_path
+    def save_all
+      @config.save_all if @config
+      self
     end
   end
 

@@ -32,39 +32,15 @@ module Configural
 
   class App
     attr_accessor :name
-    attr_accessor :platform
+    attr_reader :user
 
     def initialize( name )
       @name = name
-      @platform = Configural::Platform.get_platform(self).new(self)
-    end
-
-    def config
-      @config ||= Configural::Config.new(self)
-    end
-
-    def config_path
-      @platform.config_path
-    end
-
-    def cache
-      @cache ||= Configural::Cache.new(self)
-    end
-
-    def cache_path
-      @platform.cache_path
-    end
-
-    def data
-      @data ||= Configural::Data.new(self)
-    end
-
-    def data_path
-      @platform.data_path
+      @user = Configural::User.new(self)
     end
 
     def save_all
-      @config.save_all if @config
+      @user.save_all if @user
       self
     end
   end

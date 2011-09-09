@@ -32,10 +32,10 @@ module Configural
 
   class Config
 
-    attr_accessor :app, :options
+    attr_accessor :owner, :options
 
-    def initialize( app )
-      @app = app
+    def initialize( owner )
+      @owner = owner
       @files = {}
       @options = {
         :default_format => 'yaml',
@@ -44,7 +44,7 @@ module Configural
     end
 
     def path
-      @app.config_path
+      @owner.config_path
     end
 
     def [](name)

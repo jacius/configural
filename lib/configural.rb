@@ -31,7 +31,7 @@
 module Configural
 
   autoload :App,      'configural/app'
-  autoload :AppMixin, 'configural/app'
+  autoload :User,     'configural/user'
   autoload :Config,   'configural/config'
   autoload :Data,     'configural/data'
   autoload :Cache,    'configural/data'
