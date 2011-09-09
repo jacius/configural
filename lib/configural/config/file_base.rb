@@ -67,32 +67,16 @@ module Configural
     require 'enumerator'
     include Enumerable
 
-    attr_accessor :name
+    attr_reader :path
 
-    def initialize( config, name )
-      @config = config
-      @name = name
+    def initialize( path, options )
+      @path = path
+      @options = options
       @data = {}
       @loaded = false
-      load unless @config.options[:lazy_loading]
+      load unless @options[:lazy_loading]
     end
 
-    def path
-      pps = possible_paths
-      pps.find{ |p| File.exists?(p) } || pps.first
-    end
-
-    def possible_paths
-      if File.extname(@name).empty?
-        # Name has no extension, try appending each extension.
-        self.class.extnames.collect{ |extname|
-          File.join( @config.path, @name ) + extname
-        }
-      else
-        # Name has an extension, so don't append anything.
-        [File.join( @config.path, @name )]
-      end
-    end
 
     def clear
       @data = {}

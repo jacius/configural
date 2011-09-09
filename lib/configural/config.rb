@@ -62,11 +62,19 @@ module Configural
       if File.extname(name).empty?
         # No file extension, so use the default format.
         format = FileBase.get_format_by_name(@options[:default_format])
+        # Check all possible extensions, choose the first file that
+        # exists, or use the first file extension if no files exist.
+        paths = format.extnames.collect{ |extname|
+          File.join( self.path, name ) + extname
+        }
+        path = paths.find{ |p| File.exists?(p) } || paths.first
       else
         # Has a file extension, so try to find a matching format.
         format = FileBase.get_format_by_extname(File.extname(name))
+        # Just use the name with already-specified extension.
+        path = File.join(self.path, name)
       end
-      format.new(self, name)
+      format.new( path, @options )
     end
 
   end
