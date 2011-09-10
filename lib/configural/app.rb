@@ -31,7 +31,8 @@
 module Configural
 
   class App
-    attr_accessor :name
+    attr_accessor :name, :path
+    attr_writer :config_path, :cache_path, :data_path
     attr_reader :user
 
     def initialize( name )
@@ -39,10 +40,58 @@ module Configural
       @user = Configural::User.new(self)
     end
 
+
+    def cache
+      @cache ||=
+        begin
+          unless @cache_path
+            raise 'you must set cache_path or path first'
+          end
+          Configural::Cache.new(self)
+        end
+    end
+
+    def cache_path
+      @cache_path || (@path and File.join(@path, 'cache'))
+    end
+
+
+    def config
+      @config ||=
+        begin
+          unless @config_path
+            raise 'you must set config_path or path first'
+          end
+          Configural::Config.new(self)
+        end
+    end
+
+    def config_path
+      @config_path || (@path and File.join(@path, 'config'))
+    end
+
+
+    def data
+      @data ||=
+        begin
+          unless @data_path
+            raise 'you must set data_path or path first'
+          end
+          Configural::Data.new(self)
+        end
+    end
+
+    def data_path
+      @data_path || (@path and File.join(@path, 'data'))
+    end
+
+
     def save_all
+      @config.save_all if @config
       @user.save_all if @user
       self
     end
+
   end
 
 end
